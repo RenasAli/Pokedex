@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>update</title>
+</head>
+<body>
+<h1> Edit The Pokemon</h1>
+<form action="/update" method="post" th:each="Pokedex:${findPokemonById}">
+    <input type="hidden"  name="pokedex_number" th:value="${Pokedex.pokedex_number}">
+
+    <label for="name">Name: </label>
+    <input name="name" type="text" th:value="${Pokedex.name}">
+
+    <label for="speed">Speed: </label>
+    <input name="speed" type="number" th:value="${Pokedex.speed}">
+
+    <label for="special_defence">Special Defence: </label>
+    <input name="special_defence" type="number" th:value="${Pokedex.special_defence}">
+
+    <label for="special_attack">Special Attack: </label>
+    <input name="special_attack" type="number" th:value="${Pokedex.special_attack}">
+
+    <label for="defence">Defence: </label>
+    <input name="defence" type="number" th:value="${Pokedex.defence}">
+
+    <label for="attack">Attack: </label>
+    <input name="attack" type="number" th:value="${Pokedex.attack}">
+
+    <label for="hp">Hp: </label>
+    <input name="hp" type="number" th:value="${Pokedex.hp}">
+
+    <label for="primary_type">Primary Type: </label>
+    <input name="primary_type" type="text" th:value="${Pokedex.primary_type}">
+
+    <label for="secondary_type">Secondary Type: </label>
+    <input name="secondary_type" type="text" th:value="${Pokedex.secondary_type}">
+
+
+    <button type="submit">Edit the Pokemon</button>
+
+</form>
+
+</body>
+</html>

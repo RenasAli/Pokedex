@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <style>
+       th{
+           padding: 10px;
+       }
+       td{
+           text-align: center;
+       }
+    </style>
+</head>
+<body>
+<h1>Pokedex</h1>
+<a href="/add"> Add a new pokemon</a>
+<table>
+    <thead>
+    <tr>
+        <th> Pokedex Number</th>
+        <th>Name</th>
+        <th>Speed</th>
+        <th>Special Defence</th>
+        <th>Special Attack</th>
+        <th>Defence</th>
+        <th>Attack</th>
+        <th>Hp</th>
+        <th>Primary Type</th>
+        <th>Secondary Type</th>
+        <th><span>   </span></th>
+        <th><span>   </span> </th>
+    </tr>
+    </thead>
+    <tbody>
+   <tr th:each="Pokedex:${pokedexes}">
+        <td th:text="${Pokedex.pokedex_number}">1</td>
+        <td th:text="${Pokedex.name}">2</td>
+        <td th:text=" ${Pokedex.speed}">3</td>
+        <td th:text="${Pokedex.special_defence}">4</td>
+        <td th:text="${Pokedex.special_attack}">5</td>
+        <td th:text="${Pokedex.defence}">6</td>
+        <td th:text="${Pokedex.attack}">7</td>
+        <td th:text="${Pokedex.hp}">8</td>
+        <td th:text="${Pokedex.primary_type}">9</td>
+        <td th:text="${Pokedex.secondary_type}">10</td>
+       <td>
+           <a th:href="@{'/update/' + ${Pokedex.pokedex_number}}"> Edit</a>
+       </td>
+
+       <td>
+           <a th:href="@{'/delete/' + ${Pokedex.pokedex_number}}"> Delete </a>
+       </td>
+    </tr>
+
+    </tbody>
+
+</table>
+
+</body>
+</html>
