@@ -52,7 +52,7 @@ public class HomeController {
     }
 
     @PostMapping(value = "/update")
-    public String updatePokemon(@RequestParam("pokedex number") int Pokedex_number,
+    public String updatePokemon(
                                 @RequestParam("name") String Name ,
                                 @RequestParam("speed") int Speed,
                                 @RequestParam("special_defence") int Special_defence,
@@ -63,7 +63,7 @@ public class HomeController {
                                 @RequestParam("primary_type") String Primary_type,
                                 @RequestParam("secondary_type") String Secondary_type,
                                 @ModelAttribute Pokedex pokedex){
-        pokedex.setPokedex_number(Pokedex_number);
+
         pokedex.setName(Name);
         pokedex.setSpeed(Speed);
         pokedex.setSpecial_defence(Special_defence);
@@ -74,6 +74,12 @@ public class HomeController {
         pokedex.setPrimary_type(Primary_type);
         pokedex.setSecondary_type(Secondary_type);
         pokedexRepository.updateByid(pokedex);
+        return "redirect:/";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deletePokemon(@PathVariable("id")int Id){
+        pokedexRepository.deleteById(Id);
         return "redirect:/";
     }
 }

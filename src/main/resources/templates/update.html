@@ -6,7 +6,7 @@
 </head>
 <body>
 <h1> Edit The Pokemon</h1>
-<form action="/update" method="post" th:each="Pokedex:${findPokemonById}">
+<form action="/update" method="post" th:each="Pokedex : ${findPokemonById}">
     <input type="hidden"  name="pokedex_number" th:value="${Pokedex.pokedex_number}">
 
     <label for="name">Name: </label>
@@ -40,6 +40,7 @@
     <button type="submit">Edit the Pokemon</button>
 
 </form>
+
 
 </body>
 </html>

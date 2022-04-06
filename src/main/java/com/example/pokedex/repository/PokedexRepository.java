@@ -1,6 +1,7 @@
 package com.example.pokedex.repository;
 
 import com.example.pokedex.model.Pokedex;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -9,16 +10,18 @@ import java.util.List;
 
 @Repository
 public class PokedexRepository {
-    private final static String DB_URL = "jdbc:mysql://localhost:3306/Pokedex";
-    private final static String UID = "root";
-    private final static String PWD = "Renas160399";
+    private  static String DB_URL = "jdbc:mysql://localhost:3306/Pokedex";
+    private  static String UID = "root";
+    private  static String PWD = "Renas160399";
+    private static Environment environment;
     private static Connection connection;
 
+    public  PokedexRepository(Environment env) {
+        this.environment = env;
+    }
 
-    public static Connection pokedexConnection() {
-        if (connection != null) {
-            return connection;
-        }
+   /* public static Connection getPokedexConnection() {
+        if (connection != null) {return connection;}
         try {
             connection = DriverManager.getConnection(DB_URL, UID, PWD);
             System.out.println(" Is connected");
@@ -28,17 +31,23 @@ public class PokedexRepository {
         }
         return connection;
     }
-    public List<Pokedex> getAll(){
-        if (connection != null) {
 
-        }
+    */
+    public static Connection getConnection(){
+        if (connection !=null){return connection;}
+        DB_URL=environment.getProperty("spring.datasource.url");
+        UID=environment.getProperty("spring.datasource.username");
+        PWD=environment.getProperty("spring.datasource.password");
         try {
-            connection = DriverManager.getConnection(DB_URL, UID, PWD);
-            System.out.println(" Is connected");
-        } catch (SQLException e) {
-            System.out.println(e + "Not Connected");
+            connection=DriverManager.getConnection(DB_URL,UID,PWD);
+        }catch (SQLException e){
+            System.out.println("Is not connected");
             e.printStackTrace();
         }
+        return connection;
+    }
+    public List<Pokedex> getAll(){
+        getConnection();
         List<Pokedex> pokedexList =  new ArrayList<>();
         try{
             Statement statement= connection.createStatement();
@@ -58,10 +67,7 @@ public class PokedexRepository {
                 if( secondary_type.equals("null")){
                     secondary_type="";
                 }
-                /*System.out.println(pokedex_number + " " + name + " " + speed + " " +
-                        special_defence + " " + special_attack + " " + defence + " " +
-                        attack + " " + hp + " " + primary_type + " " + secondary_type);
-                 */
+
                 pokedexList.add(new Pokedex(pokedex_number,
                         name,speed,special_defence,special_attack,
                         defence, attack,hp,primary_type,secondary_type));
@@ -74,30 +80,20 @@ public class PokedexRepository {
         return pokedexList;
     }
     public void addPokemon(Pokedex pokedex){
-        pokedexConnection();
+        getConnection();
         final String ADD_QUERY="INSERT INTO pokemon(name, speed, special_defence, special_attack, defence, attack, hp, primary_type, secondary_type) VALUE(?,?,?,?,?,?,?,?,?)";
-        int pokedex_number= pokedex.getPokedex_number();
-        String name= pokedex.getName();
-        int speed= pokedex.getSpeed();
-        int special_defence= pokedex.getSpecial_defence();
-        int special_attack= pokedex.getSpecial_attack();
-        int defence=pokedex.getDefence();
-        int attack= pokedex.getAttack();
-        int hp= pokedex.getHp();
-        String primary_type= pokedex.getPrimary_type();
-        String secondary_type = pokedex.getSecondary_type();
+
         try {
             PreparedStatement preparedStatement=connection.prepareStatement(ADD_QUERY);
-            preparedStatement.setInt(1,pokedex_number);
-            preparedStatement.setString(2,name);
-            preparedStatement.setInt(3,speed);
-            preparedStatement.setInt(4,special_defence);
-            preparedStatement.setInt(5,special_attack);
-            preparedStatement.setInt(6,defence);
-            preparedStatement.setInt(7,attack);
-            preparedStatement.setInt(8,hp);
-            preparedStatement.setString(9,primary_type);
-            preparedStatement.setString(10,secondary_type);
+            preparedStatement.setString(1,pokedex.getName());
+            preparedStatement.setInt(2,pokedex.getSpeed());
+            preparedStatement.setInt(3,pokedex.getSpecial_defence());
+            preparedStatement.setInt(4,pokedex.getSpecial_attack());
+            preparedStatement.setInt(5,pokedex.getDefence());
+            preparedStatement.setInt(6,pokedex.getAttack());
+            preparedStatement.setInt(7,pokedex.getHp());
+            preparedStatement.setString(8,pokedex.getPrimary_type());
+            preparedStatement.setString(9,pokedex.getSecondary_type());
             preparedStatement.executeUpdate();
             System.out.println("is update");
         }catch (SQLException e){
@@ -105,15 +101,17 @@ public class PokedexRepository {
             e.printStackTrace();
         }
     }
-    public List<Pokedex> findPokemonById(int id){
-        final String findPokemon_query="SELECT * FROM pokemon  WHERE pokedex_number= 1";
-        pokedexConnection();
-        List<Pokedex> pokedexList =  new ArrayList<>();
+
+    public Pokedex findPokemonById(int id){
+        final String findPokemon_query="SELECT * FROM pokemon  WHERE pokedex_number=?";
+        getConnection();
+        Pokedex pokedex=null;
         try {
-            Statement statement= connection.createStatement();
-            ResultSet resultSet=statement.executeQuery(findPokemon_query);
-            while (resultSet.next()){
-                int pokedex_number= resultSet.getInt(1);
+            PreparedStatement preparedStatement=connection.prepareStatement(findPokemon_query);
+            preparedStatement.setInt(1,id);
+            ResultSet resultSet= preparedStatement.executeQuery();
+            resultSet.next();
+                id=resultSet.getInt(1);
                 String name= resultSet.getString(2);
                 int speed= resultSet.getInt(3);
                 int special_defence= resultSet.getInt(4);
@@ -126,47 +124,51 @@ public class PokedexRepository {
                 if( secondary_type.equals("null")){
                     secondary_type="";
                 }
-                pokedexList.add(new Pokedex(pokedex_number,
-                        name,speed,special_defence,special_attack,
-                        defence, attack,hp,primary_type,secondary_type));
-            }
-            statement.close();
+
+
+            pokedex= new Pokedex(id,
+                   name,speed,special_defence,special_attack,
+                   defence, attack,hp,primary_type,secondary_type);
+
         }catch (SQLException e){
             System.out.println(e + "Not Found");
             e.printStackTrace();
         }
-       return pokedexList;
+       return pokedex;
     }
     public void updateByid(Pokedex pokedex) {
-        pokedexConnection();
+        getConnection();
             final String UPDATE_QUERY="UPDATE pokemon SET name=?, speed=?, special_defence=?, special_attack=?, defence=?, attack=?, hp=?, primary_type=?, secondary_type=? WHERE pokedex_number=?";
-            int pokedex_number= pokedex.getPokedex_number();
-            String name= pokedex.getName();
-            int speed= pokedex.getSpeed();
-            int special_defence= pokedex.getSpecial_defence();
-            int special_attack= pokedex.getSpecial_attack();
-            int defence=pokedex.getDefence();
-            int attack= pokedex.getAttack();
-            int hp= pokedex.getHp();
-            String primary_type= pokedex.getPrimary_type();
-            String secondary_type = pokedex.getSecondary_type();
-
             try {
             PreparedStatement preparedStatement=connection.prepareStatement(UPDATE_QUERY);
-            preparedStatement.setInt(1,pokedex_number);
-            preparedStatement.setString(2,name);
-            preparedStatement.setInt(3,speed);
-            preparedStatement.setInt(4,special_defence);
-            preparedStatement.setInt(5,special_attack);
-            preparedStatement.setInt(6,defence);
-            preparedStatement.setInt(7,attack);
-            preparedStatement.setInt(8,hp);
-            preparedStatement.setString(9,primary_type);
-            preparedStatement.setString(10,secondary_type);
-            preparedStatement.executeUpdate();
+                preparedStatement.setString(1,pokedex.getName());
+                preparedStatement.setInt(2,pokedex.getSpeed());
+                preparedStatement.setInt(3,pokedex.getSpecial_defence());
+                preparedStatement.setInt(4,pokedex.getSpecial_attack());
+                preparedStatement.setInt(5,pokedex.getDefence());
+                preparedStatement.setInt(6,pokedex.getAttack());
+                preparedStatement.setInt(7,pokedex.getHp());
+                preparedStatement.setString(8,pokedex.getPrimary_type());
+                preparedStatement.setString(9,pokedex.getSecondary_type());
+                preparedStatement.setInt(10,pokedex.getPokedex_number());
+                preparedStatement.executeUpdate();
                 System.out.println("is update");
             }catch (SQLException e){
             System.out.println("Could not update");
+            e.printStackTrace();
+        }
+    }
+    public void deleteById(int id){
+        getConnection();
+        final String DELETE_QUERY="DELETE FROM pokemon WHERE pokedex_number=?";
+        try {
+            PreparedStatement preparedStatement=connection.prepareStatement(DELETE_QUERY);
+            preparedStatement.setInt(1,id);
+            preparedStatement.executeUpdate();
+            System.out.println("Is deleted");
+
+        }catch (SQLException e){
+            System.out.println("is not deleted");
             e.printStackTrace();
         }
     }
