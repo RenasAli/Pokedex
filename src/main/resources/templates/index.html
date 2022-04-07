@@ -24,6 +24,7 @@
     <thead class="table-header">
     <tr>
         <th> Pokedex Number</th>
+        <th>Image</th>
         <th>Name</th>
         <th>Speed</th>
         <th>Special Defence</th>
@@ -40,6 +41,8 @@
     <tbody class="table table-striped ">
    <tr th:each="Pokedex:${pokedexes}" >
         <td th:text="${Pokedex.pokedex_number}">1</td>
+        <th> <img th:src="@{'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'
+        + ${Pokedex.pokedex_number} + '.png'}"></th>
         <td th:text="${Pokedex.name}">2</td>
         <td th:text=" ${Pokedex.speed}">3</td>
         <td th:text="${Pokedex.special_defence}">4</td>

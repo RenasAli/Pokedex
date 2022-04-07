@@ -12,6 +12,7 @@ public class Pokedex {
     private String primary_type;
     private String secondary_type;
 
+
     public Pokedex() {
     }
 
